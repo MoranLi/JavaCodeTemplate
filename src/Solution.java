@@ -1,45 +1,63 @@
-import java.util.*;
+import java.util.Stack;
 
+class Pair{
+    String s;
+    int n;
+    public Pair(String s, int n) {
+        this.s = s;
+        this.n = n;
+    }
+}
 class Solution {
-    public List<Integer> findMinHeightTrees(int n, int[][] edges) {
-        HashMap<Integer, HashSet<Integer>> connect = new HashMap<>();
-        for(int [] edge : edges){
-            HashSet<Integer> set1 = connect.getOrDefault(edge[0], new HashSet<Integer>());
-            set1.add(edge[1]);
-            connect.put(edge[0], set1);
-            HashSet<Integer> set2 =connect.getOrDefault(edge[1], new HashSet<Integer>());
-            set2.add(edge[0]);
-            connect.put(edge[1], set2);
-        }
-        List<Integer> leaves = new LinkedList<>();
-        for(Integer key: connect.keySet()){
-            if(connect.get(key).size() == 1){
-                leaves.add(key);
+    public String decodeString(String s) {
+        int p = 0;
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        Stack<Pair> stack = new Stack<>();
+        String ans = "";
+        while(p < s.length()){
+            while(s.charAt(p)  - '0' < 10 && s.charAt(p) - '0' > -1){
+                i = i * 10 + (s.charAt(p) - '0');
+                p ++;
             }
-        }
-        int remains = n;
-        while(remains > 2){
-            List<Integer> newLeaves = new LinkedList<>();
-            for(Integer leaf: leaves){
-                connect.remove(leaf);
-                remains --;
-                for(Integer key: connect.keySet()){
-                    if(connect.get(key).contains(leaf)){
-                        connect.get(key).remove(leaf);
-                        if(connect.get(key).size() == 1){
-                            newLeaves.add(key);
-                        }
+            if(s.charAt(p) == '[') p ++;
+            while(p < s.length() && s.charAt(p) - 'a' < 27 && s.charAt(p) - 'a' > -1){
+                sb.append(s.charAt(p));
+                p ++;
+            }
+            if(p < s.length() && s.charAt(p) == ']'){
+                StringBuilder t = new StringBuilder();
+                if(sb.length() > 0) {
+                    for (int x = 0; x < i; x++) {
+                        t.append(sb.toString());
                     }
                 }
+                else{
+                    Pair pa = stack.pop();
+                    for (int x = 0; x < pa.n; x++) {
+                        t.append(pa.s);
+                    }
+                }
+                if (stack.empty()) {
+                    ans += t.toString();
+                } else {
+                    stack.peek().s += t;
+                }
+                p++;
             }
-            leaves = newLeaves;
+            else{
+                if(i > 0)stack.add(new Pair(sb.toString(),i));
+                else ans += sb.toString();
+            }
+            sb = new StringBuilder();
+            i = 0;
         }
-        return leaves;
+        return ans;
     }
 
     public static void main(String[] args) {
         Solution s = new Solution();
-        int [][] edges = {{1,0},{1,2},{1,3}};
-        System.out.println(s.findMinHeightTrees(4,edges));
+        System.out.println(s.decodeString("3[z]2[2[y]pq4[2[jk]e1[f]]]ef"));
+
     }
 }
